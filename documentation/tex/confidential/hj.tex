@@ -1,0 +1,26 @@
+\section{劫持系统例程}
+\subsection{系统调用}
+x86\_64 平台上，Linux~支持系统调用的两种方式，通过 int 0x80 或 syscall 指
+令。两者都是通过往一个 CPU 事先约定好的存储区域注册一个地址，当需要的时候
+CPU 会从相应地址处开始执行。前者称为 IDT (\textit{Interrupt Descriptors Table})，
+后者则存储与 MSR (Model Specific Registers) 的 LSTAR。我们目前只关心后者。
+
+通过 MSR 注册系统调用的路径大致如下：
+
+\begin{verbatim}
+start_kernel() -> trap_init() -> cpu_init() -> syscall_init()
+\end{verbatim}
+
+最终调用：\verb=wrmsrl(MSR_LSTAR, system_call);= 将符号 \verb=system_call= 的地址注
+册。符号 \verb=system_call= 在 \verb=arch/x86_64/kernel/enry.S= 中定义。
+用户空间的库函数  (e.g, glibc)，实际上就是设置好参数，譬如把系统调用号存
+入 \verb=rax= 中，然后发出一条 syscall 指令，之后控制进入 
+\verb=system_call=   函数中，该函数一开始做一些参数入栈、测试参数合法性等
+辅助工作，如果一切顺利，最终将走到：\verb=call *sys_call_table(,%rax,8)= 
+这条语句。显而易见，这里 \verb=sys_call_table= 是一个大数组，
+里面存放所有系统调用对应的例程，例如该数组的第  \verb=__NR_clone= 项就存
+放着 \verb=clone= 系统调用对应的例程。
+
+
+
+

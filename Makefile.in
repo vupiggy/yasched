@@ -1,0 +1,92 @@
+### Makefile.in --- 
+
+## Author:	Luke Huang <lukehuang.ca@gmail.com>
+
+CC=gcc
+LD=ld
+RM=rm
+MAKE=make
+
+MAKEFLAGS += --no-print-directory
+
+# This is a law!
+CFLAGS += -Wall -Werror
+
+ifdef V
+  ifeq ("$(origin V)", "command line")
+    BUILD_VERBOSE = $(V)
+  endif
+endif
+ifndef BUILD_VERBOSE
+  BUILD_VERBOSE = 0
+endif
+
+ifeq ($(BUILD_VERBOSE),1)
+  q =
+  Q =
+else
+  q = q_
+  Q = @
+endif
+
+all:
+	@for dir in $(SUBDIRS);			\
+	 do					\
+		echo "MK -C	$$dir";		\
+		$(MAKE) -C $$dir;		\
+		echo "";			\
+	 done
+
+ifeq ($(MAKE_VERSION), 3.81)
+  ABS_PATH	= $(abspath $(1))
+  REAL_PATH	= $(realpath $(1))
+else
+  ABS_PATH	= $(shell for dir in $(1); do cd `dirname $$dir`; \
+                    echo "`pwd`/$$dir"; `cd - >&/dev/null`; done)
+  REAL_PATH	= $(shell pwd)/$(1)
+endif
+
+## q_cmd_all	?= 'MK"	"$(call ABS_PATH,$(SUBDIRS))'
+##   cmd_all	?= 
+## 
+## q_cmd_clean	?= 'CL"	"$(SUBDIRS)'
+##   cmd_clean 	?= for dir in $(SUBDIRS); do $(MAKE) -C $$dir clean; done
+
+q_cmd_sclean	?= '"  "RM"	"$(TARGETS) *.o'
+  cmd_sclean 	?= $(RM) -f $(TARGETS) *.o
+
+q_cmd_compile	?= '"  "CC"	"$(call ABS_PATH,$@)'
+  cmd_compile	?= $(CC) $(CFLAGS) -c $<
+
+#link_multi_deps ?= $($(@:=-objs)) $(@F:=.o)
+link_multi_deps ?= $^
+q_cmd_link	?= '"  "LD"	"$(call ABS_PATH,$@)'
+  cmd_link	?= $(CC) $(LDFLAGS) $(link_multi_deps) -o $@
+
+# Doc
+LATEX=xelatex
+BIBTEX=bibtex
+q_cmd_latex     ?= '"    "PDFTEX       $(PWD)/$<'
+  cmd_latex     ?= $(LATEX)     $< >/dev/null
+q_cmd_bibtex    ?= '"    "BIBTEX       $(PWD)/$<'
+  cmd_bibtex    ?= $(BIBTEX)    $(<:%.tex=%) >/dev/null
+
+echo-cmd = $(if $($(q)cmd_$(1)),\
+        echo '$($(q)cmd_$(1))';)
+cmd = @$(echo-cmd) $(cmd_$(1))
+
+.PHONY: all clean
+
+%.o:%.c
+	$(call cmd,compile)
+
+cscope:
+	@echo "CSCOPE"
+	@find . -name "*.[ch]" > cscope.files
+	@cscope -b -q
+
+# check-syntax:SOFLAGS+=-I. -I.. -I../..
+### check-syntax:
+###	gcc -o nul -S ${CHK_SOURCES} $(SOFLAGS)
+
+### Makefile.in ends here

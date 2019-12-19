@@ -1,0 +1,48 @@
+.\"-*- nroff -*-
+.TH YASADMIN "1" "May 2018" "YASched 1.0" "User Commands"
+.SH "NAME"
+yasadmin \- the master command of YASched administration tool.
+.SH "SYNOPSIS"
+.B yasadmin
+\fISUBCOMMAND\fR [\fIOPTIONS\fR] [\fIARGUEMENTS\fR]
+.SH "DESCRIPTION"
+.PP
+Manage the YASched computing environment.
+Available \fISUBCOMMANDS\fR:
+.TP
+\fBsuspend\fR
+.br
+suspend a specific job.
+available options:
+.IP
+\fB\-z\fR, \fB\-\-zone\fR=\fIID\fR
+.IP
+\fB\-j\fR, \fB\-\-job\fR=\fIID\fR
+
+.TP
+\fBresume\fR
+.br
+resume a specific job.
+available options:
+.IP
+\fB\-z\fR, \fB\-\-zone\fR=\fIID\fR
+.IP
+\fB\-j\fR, \fB\-\-job\fR=\fIID\fR.
+
+.TP
+\fBkill\fR
+.br
+kill a specific job.
+available options:
+.IP
+\fB\-z\fR, \fB\-\-zone\fR=\fIID\fR
+.IP
+\fB\-j\fR, \fB\-\-job\fR=\fIID\fR
+.SH "AUTHOR"
+.PP
+Writen by Luke Huang <lukehuang.ca@gmail.com>.
+.SH "REPORTING BUGS"
+Please report bugs to lukehuang.ca@gmail.com.
+.SH "COPYRIGHT"
+Copyright \(co 2018 Luke Huang <lukehuang.ca@gmail.com>
+.SH "SEE ALSO"
